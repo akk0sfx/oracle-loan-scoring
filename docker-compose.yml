@@ -1,0 +1,29 @@
+# Local environment. Passwords come from .env (template: .env.example).
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    container_name: creatio-loan-scoring-oracle
+    environment:
+      # Password for SYS and SYSTEM; required on the first start.
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?set ORACLE_PASSWORD in .env}
+      # The image creates this user in PDB FREEPDB1 (role DB_DEVELOPER_ROLE)
+      # before running the init scripts. This is the SCORING schema.
+      APP_USER: SCORING
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD:?set APP_USER_PASSWORD in .env}
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      # Scripts run only on the first initialization (empty volume).
+      # To re-apply them: docker compose down -v && docker compose up -d oracle
+      - ./oracle/init:/container-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      # The first database initialization takes a minute or two; failures during it do not count.
+      start_period: 120s
+
+volumes:
+  oracle-data:
