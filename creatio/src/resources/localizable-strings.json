@@ -1,0 +1,28 @@
+{
+  "_comment": "Localizable strings to create in the schema designer (Name -> en-US / ru-RU). After the package export they move into the schemas' resource files. ru-RU values are UI translation data (the only Cyrillic allowed in the repository).",
+  "UsrLoanApplication1Page": {
+    "SendToScoringButtonCaption": { "en-US": "Send to scoring", "ru-RU": "Отправить на скоринг" },
+    "LoanTabCaption": { "en-US": "Loan", "ru-RU": "Кредит" },
+    "HistoryTabCaption": { "en-US": "History", "ru-RU": "История" },
+    "LoanParametersGroupCaption": { "en-US": "Loan parameters", "ru-RU": "Параметры кредита" },
+    "ScoringResultGroupCaption": { "en-US": "Scoring result", "ru-RU": "Результат скоринга" },
+    "EstimatedPaymentCaption": { "en-US": "Estimated payment, ₽", "ru-RU": "Ориентировочный платёж, ₽" },
+    "EstimatedPaymentTip": { "en-US": "Preview at the base rate of the loan purpose. The final rate and payment are calculated by scoring.", "ru-RU": "Предварительный расчёт по базовой ставке цели кредита. Итоговые ставку и платёж рассчитывает скоринг." },
+    "AmountRangeMessage": { "en-US": "Amount must be between 50 000 and 5 000 000.", "ru-RU": "Сумма должна быть от 50 000 до 5 000 000." },
+    "TermRangeMessage": { "en-US": "Term must be between 6 and 84 months.", "ru-RU": "Срок должен быть от 6 до 84 месяцев." },
+    "IncomeRangeMessage": { "en-US": "Monthly income must be greater than 0 and at most 10 000 000.", "ru-RU": "Доход в месяц должен быть больше 0 и не больше 10 000 000." },
+    "ScoringDecisionMessage": { "en-US": "Decision: {0} (score {1}).", "ru-RU": "Решение: {0} (балл {1})." },
+    "ScoringPaymentMessage": { "en-US": "Monthly payment: {0} ₽ at {1}% per annum.", "ru-RU": "Ежемесячный платёж: {0} ₽ под {1}% годовых." }
+  },
+  "UsrLoanScoringClientUtils": {
+    "Decision_APPROVE": { "en-US": "approved", "ru-RU": "одобрено" },
+    "Decision_REVIEW": { "en-US": "manual review", "ru-RU": "на согласовании" },
+    "Decision_REJECT": { "en-US": "rejected", "ru-RU": "отклонено" },
+    "Error_APP_NOT_FOUND": { "en-US": "The application was not found or you have no access to it.", "ru-RU": "Заявка не найдена или у вас нет к ней доступа." },
+    "Error_INVALID_STATUS": { "en-US": "Only an application in status New can be sent to scoring.", "ru-RU": "На скоринг можно отправить только заявку в статусе «Новая»." },
+    "Error_VALIDATION_ERROR": { "en-US": "Check the amount, term and income: they are outside the allowed ranges.", "ru-RU": "Проверьте сумму, срок и доход: значения вне допустимых диапазонов." },
+    "Error_SCORING_UNAVAILABLE": { "en-US": "The scoring service is unavailable. The application is back in status New; try again later.", "ru-RU": "Сервис скоринга недоступен. Заявка возвращена в статус «Новая», попробуйте позже." },
+    "Error_SCORING_ERROR": { "en-US": "The scoring service returned an error. The application is back in status New.", "ru-RU": "Сервис скоринга вернул ошибку. Заявка возвращена в статус «Новая»." },
+    "Error_Unknown": { "en-US": "Scoring could not be completed. Refresh the page and try again.", "ru-RU": "Не удалось выполнить скоринг. Обновите страницу и попробуйте снова." }
+  }
+}

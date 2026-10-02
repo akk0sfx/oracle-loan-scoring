@@ -31,6 +31,33 @@ sections 2–3.
 | `UsrScoringApiClient` | HTTP call to the Scoring API with `X-Api-Key` and `X-Correlation-Id` |
 | `UsrLoanScoringService` | `POST /0/rest/UsrLoanScoringService/Score` |
 | `UsrLoanApplicationEventListener` | default status, `LA-000001` numbers, transitions, financial lock, history |
+| `UsrLoanScoringClientUtils` (client module) | status/decision/error codes, base rates, payment preview, localized error texts |
+| `UsrLoanApplication1Page` (record page) | the loan application card, see below |
+| decision history detail | list of UsrLoanDecisionHistory, newest first |
+
+Localizable strings (en-US and ru-RU) for the client schemas are listed in
+`creatio/src/resources/localizable-strings.json`.
+
+### Loan application page
+
+- **Header:** number (`LA-000001`) and status, both read-only; green **Send to scoring** button, visible
+  for a saved application in status New.
+- **Loan tab, "Loan parameters":** client, purpose, amount, term, income and an *estimated payment*
+  preview at the purpose base rate (recomputed as you type; the real numbers always come from the
+  server). The fields are validated with the contract ranges and locked once the status is not New.
+- **Loan tab, "Scoring result":** score, decision, rate, payment, max approved amount, reasons, scored
+  on, decision comment — read-only, filled by the server.
+- **History tab:** status changes with score and comment, newest first.
+- **Scoring:** unsaved edits are saved first, the page is masked during the call, a second click is
+  ignored; the result (decision, score, payment) or a localized error text is shown in a dialog and
+  the record is reloaded.
+
+| | |
+|---|---|
+| ![Loan application page](docs/screenshots/loan-page.png) | ![Scoring result dialog](docs/screenshots/scoring-dialog.png) |
+| ![Validation error](docs/screenshots/validation.png) | ![Decision history](docs/screenshots/history-tab.png) |
+
+_Screenshots are placeholders until the package runs on the stand._
 
 The C# sources live in `creatio/src/` until the package export is available; then each file goes into
 `creatio/packages/UsrLoanScoring/Schemas/<SchemaName>/<SchemaName>.cs` (schema UIds and metadata stay as
@@ -47,6 +74,10 @@ clio push-pkg creatio/packages/UsrLoanScoring -e dev
 
 Then compile the configuration (Configuration section → Actions → Compile, or clio — see the
 command list in `clio --help` for the compile command of your clio version).
+
+Client schemas (JS) need no compilation; reload the browser without cache (Ctrl+F5 / Cmd+Shift+R).
+For readable sources in DevTools enable debug mode: system setting `IsDebug = true`, or in the browser
+console `Terrasoft.SysSettings.postPersonalSysSettingsValue("IsDebug", true)`, then reload.
 
 ### Mock or real API
 

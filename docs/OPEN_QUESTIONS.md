@@ -116,3 +116,39 @@ Such places in code are marked `// TODO(verify): ...` (`-- TODO(verify): ...` in
   as allowed). The API is then called twice. Fix: conditional update `SET status = SCORING WHERE
   status = NEW` (Update query) and treat 0 affected rows as INVALID_STATUS. Contract change? (behaviour only)
 - Status: open
+
+## Q-014: Name of the decision history detail schema
+- Date: 2026-10-02
+- Where: UsrLoanApplication1Page.js (`HISTORY_DETAIL_SCHEMA`), UsrLoanDecisionHistoryDetail.js
+- Context: the wizard generates the detail schema name. The code assumes `UsrLoanDecisionHistoryDetail`;
+  replace it with the real name after the package export.
+- Status: open
+
+## Q-015: lookupListConfig.columns on record load
+- Date: 2026-10-02
+- Where: UsrLoanApplication1Page.js (UsrStatus, UsrPurpose)
+- Context: the page reads `this.get("UsrStatus").UsrCode`. Confirm the extra column is loaded with the
+  record, not only in the lookup selection window. If not, load the codes with an EntitySchemaQuery in
+  onEntityInitialized.
+- Status: open — check in DevTools: `this.get("UsrStatus")` on the page view model
+
+## Q-016: BasePageV2 methods used by the scoring button
+- Date: 2026-10-02
+- Where: UsrLoanApplication1Page.js
+- Context: `isChanged()`, `save({isSilent, callback, scope})`, `onSaved`, `reloadEntity()`,
+  `showBodyMask()/hideBodyMask()`, `showInformationDialog()` in this Creatio version.
+- Status: open
+
+## Q-017: Container of the page action buttons
+- Date: 2026-10-02
+- Where: UsrLoanApplication1Page.js (SendToScoringButton, parentName "LeftContainer")
+- Context: the button must be next to Save/Close both when the page is opened alone and in combined
+  (section + card) mode; the latter may use "CombinedModeActionButtonsCardLeftContainer".
+- Status: open
+
+## Q-018: Default sorting of a grid detail
+- Date: 2026-10-02
+- Where: UsrLoanDecisionHistoryDetail.js
+- Context: `getGridDataColumns` with `orderPosition` / `orderDirection` on CreatedOn is assumed to set
+  ORDER BY CreatedOn DESC.
+- Status: open

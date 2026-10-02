@@ -223,3 +223,20 @@ Log of non-obvious decisions (ADR-lite). Newest entries at the bottom.
 - Production options: a database sequence (Oracle/PostgreSQL) read via a custom query; a counter row
   updated with `UPDATE ... SET n = n + 1 RETURNING n` under a row lock; a unique index on UsrNumber plus
   retry on conflict.
+
+## ADR-023: Payment preview on the page uses floating point and is never stored
+- Date: 2026-10-02
+- Decision: `UsrLoanScoringClientUtils.calcAnnuity` computes the "estimated payment" at the purpose base
+  rate with JavaScript numbers; the value lives in a virtual attribute only.
+- Why: the preview is for the user while typing; JS has no decimal type, and contract 5 makes the server
+  (Oracle / C#) the source of all stored numbers. A virtual attribute cannot be saved by accident.
+- Alternatives: call the server on every keystroke (load, latency); a decimal library on the client.
+
+## ADR-024: Page layout and read-only state are defined in code, not by the wizard
+- Date: 2026-10-02
+- Decision: `UsrLoanApplication1Page` owns its full diff (groups, tab, detail) and binds `enabled` to the
+  virtual attribute `IsFinancialEditable`; result fields and `UsrNumber` are `enabled: false`.
+- Why: one attribute drives five fields and matches the server lock (listener, ADR-021); declarative
+  wizard rules would duplicate the status logic. Reopening the page in the wizard may rewrite the code
+  between SCHEMA_* markers, so further layout changes go through code.
+- Alternatives: business rules in the wizard (no code, but the status condition lives in two places).
