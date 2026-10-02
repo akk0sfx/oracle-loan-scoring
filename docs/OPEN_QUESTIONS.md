@@ -46,3 +46,28 @@ Such places in code are marked `// TODO(verify): ...` (`-- TODO(verify): ...` in
   rate 19.90, payment 25 423.48, max amount 944 000 — not 790 / 20.90 / 25 740.12 / 940 000.
   The examples are marked illustrative; should they be replaced with the real values?
 - Status: open
+
+## Q-005: Full list of ODP.NET Managed "database unavailable" error numbers
+- Date: 2026-10-02
+- Where: scoring-api/src/ScoringApi/Infrastructure/ApiExceptionHandler.cs (`ConnectivityErrors`)
+- Context: with Oracle stopped, ODP.NET Managed throws `OracleException` Number 50201 wrapping
+  ORA-12537 (verified). The list also contains classic ORA/TNS numbers (12541, 12514, 1017, ...) and
+  50000 for a pool timeout, which were not reproduced. Should a DNS failure (container removed),
+  a wrong password and a pool timeout be checked explicitly?
+- Status: open (50201 verified on 2026-10-02)
+
+## Q-006: "code" for framework errors not listed in the contract
+- Date: 2026-10-02
+- Where: scoring-api/src/ScoringApi/Infrastructure/ErrorCodes.cs
+- Context: the contract requires "code" in all errors but lists only VALIDATION_ERROR, UNAUTHORIZED,
+  DATABASE_UNAVAILABLE, INTERNAL_ERROR. Unknown routes and wrong methods return NOT_FOUND and
+  METHOD_NOT_ALLOWED. Add them to CONTRACTS.md section 4?
+- Status: open
+
+## Q-007: Time zone of SCORING_LOG.CREATED_AT
+- Date: 2026-10-02
+- Where: CONTRACTS.md section 6, oracle/init/01_schema.sql
+- Context: TIMESTAMP without zone filled by SYSTIMESTAMP is the DB host local time; the API assumes UTC
+  (ADR-008). Correct for the container, wrong for a DB host in another zone. Switch the default to
+  `SYS_EXTRACT_UTC(SYSTIMESTAMP)`?
+- Status: open

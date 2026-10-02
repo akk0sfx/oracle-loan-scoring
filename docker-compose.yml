@@ -25,5 +25,21 @@ services:
       # The first database initialization takes a minute or two; failures during it do not count.
       start_period: 120s
 
+  scoring-api:
+    build:
+      context: ./scoring-api
+    container_name: creatio-loan-scoring-api
+    depends_on:
+      oracle:
+        # Start only after healthcheck.sh reports the database (incl. init scripts) ready.
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      # Inside the compose network the database host is the service name "oracle".
+      ConnectionStrings__Oracle: "User Id=SCORING;Password=${APP_USER_PASSWORD};Data Source=//oracle:1521/FREEPDB1;Connection Timeout=5"
+      Scoring__ApiKey: ${SCORING_API_KEY:?set SCORING_API_KEY in .env}
+    ports:
+      - "8080:8080"
+
 volumes:
   oracle-data:

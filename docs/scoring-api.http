@@ -1,0 +1,162 @@
+# Scoring API requests for the REST Client extension (VS Code) or the Rider / Visual Studio HTTP client.
+# Default target: docker compose (port 8080). For `dotnet run` use http://localhost:5077.
+@baseUrl = http://localhost:8080
+@apiKey = dev-key-change-me
+@applicationId = 6f1c2b9e-0000-0000-0000-000000000001
+
+### Health (no key)
+GET {{baseUrl}}/health
+
+### Evaluate — success (APPROVE)
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+X-Correlation-Id: demo-approve-001
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 500000.00,
+  "termMonths": 24,
+  "monthlyIncome": 120000.00,
+  "purposeCode": "CONSUMER"
+}
+
+### Evaluate — success (REVIEW)
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 1000000.00,
+  "termMonths": 36,
+  "monthlyIncome": 100000.00,
+  "purposeCode": "CAR"
+}
+
+### Evaluate — success (REJECT: rate and monthlyPayment are null)
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 2000000.00,
+  "termMonths": 24,
+  "monthlyIncome": 100000.00,
+  "purposeCode": "OTHER"
+}
+
+### 400 — amount out of range
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 10000.00,
+  "termMonths": 24,
+  "monthlyIncome": 120000.00,
+  "purposeCode": "CONSUMER"
+}
+
+### 400 — term out of range
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 500000.00,
+  "termMonths": 120,
+  "monthlyIncome": 120000.00,
+  "purposeCode": "CONSUMER"
+}
+
+### 400 — income out of range
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 500000.00,
+  "termMonths": 24,
+  "monthlyIncome": 0,
+  "purposeCode": "CONSUMER"
+}
+
+### 400 — unknown purposeCode
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 500000.00,
+  "termMonths": 24,
+  "monthlyIncome": 120000.00,
+  "purposeCode": "GOLD"
+}
+
+### 400 — empty applicationId
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "",
+  "amount": 500000.00,
+  "termMonths": 24,
+  "monthlyIncome": 120000.00,
+  "purposeCode": "CONSUMER"
+}
+
+### 400 — several errors at once (missing fields)
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}"
+}
+
+### 400 — malformed JSON / wrong field type
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 500000.00,
+  "termMonths": "twenty-four",
+  "monthlyIncome": 120000.00,
+  "purposeCode": "CONSUMER"
+}
+
+### 401 — missing X-Api-Key
+POST {{baseUrl}}/api/v1/scoring/evaluate
+Content-Type: application/json
+
+{
+  "applicationId": "{{applicationId}}",
+  "amount": 500000.00,
+  "termMonths": 24,
+  "monthlyIncome": 120000.00,
+  "purposeCode": "CONSUMER"
+}
+
+### 401 — wrong X-Api-Key
+GET {{baseUrl}}/api/v1/scoring/{{applicationId}}/history
+X-Api-Key: wrong-key
+
+### History (newest first)
+GET {{baseUrl}}/api/v1/scoring/{{applicationId}}/history
+X-Api-Key: {{apiKey}}
+
+### History — no records (empty array)
+GET {{baseUrl}}/api/v1/scoring/00000000-0000-0000-0000-000000000000/history
+X-Api-Key: {{apiKey}}
+
+### OpenAPI document
+GET {{baseUrl}}/openapi/v1.json
