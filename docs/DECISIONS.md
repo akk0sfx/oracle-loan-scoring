@@ -122,3 +122,43 @@ Log of non-obvious decisions (ADR-lite). Newest entries at the bottom.
 - Why: outside Development minimal APIs answer malformed JSON with an empty 400, which has no
   `code` extension required by the contract.
 - Alternatives: accept `JsonElement` and parse manually (verbose).
+
+## ADR-012: Oracle errors are translated in the data layer
+- Date: 2026-10-02
+- Decision: `OracleScoringRepository` converts `OracleException` into `ScoringInputRejectedException`
+  (ORA-20001..-20005) or `ScoringDatabaseUnavailableException` (connectivity codes) using
+  `OracleErrorClassifier`; `ApiExceptionHandler` maps only these data-layer exceptions.
+- Why: `OracleException` has no public constructor, so tests with a fake repository could not
+  simulate "no connection" without reflection. The HTTP layer no longer depends on ODP.NET, and the
+  classification rules are unit-tested on plain ORA numbers. Responses did not change.
+- Alternatives: keep the mapping in the handler and build `OracleException` via reflection in tests
+  (brittle across ODP.NET versions).
+
+## ADR-013: Shouldly for assertions
+- Date: 2026-10-02
+- Decision: test projects use Shouldly 4.
+- Why: MIT license. FluentAssertions 8+ is under a commercial Xceed license (paid for commercial use),
+  an unnecessary licensing question for a public portfolio repository. Shouldly's failure messages
+  include the asserted expression, which is enough here.
+- Alternatives: FluentAssertions 7 (last Apache-2.0 version, frozen); plain xUnit `Assert`.
+
+## ADR-014: Integration tests use a generic Testcontainers container with the compose init folder
+- Date: 2026-10-02
+- Decision: `OracleFixture` starts `gvenzl/oracle-free:23-slim` with `ContainerBuilder`, bind-mounts
+  `oracle/init` to `/container-entrypoint-initdb.d`, waits for "DATABASE IS READY TO USE!" and fails
+  if the init part of the log contains `ORA-` or compilation errors. One container per test
+  collection (`ICollectionFixture`).
+- Why: the database is initialized by the very same mechanism and scripts as docker-compose, so the
+  tests also cover ADR-003/004. The image does not fail on a broken init script, hence the log check.
+- Alternatives: Testcontainers.Oracle module (oriented to its own default image and connection
+  settings); running the scripts from the test via SQL*Plus-like parsing (re-implements `@@` and `/`).
+
+## ADR-015: Package validation errors are tested through the API with a corrupting decorator
+- Date: 2026-10-02
+- Decision: integration tests wrap the real repository in a decorator that breaks one field after
+  the API validator has passed, so ORA-20001..-20005 really come from Oracle and go through the
+  real exception handler.
+- Why: the API rejects invalid input before the database (ADR-009), so these package errors are
+  unreachable through a plain HTTP request, yet the mapping must be proven end to end.
+- Alternatives: a test-only endpoint (test code in production assembly); testing the repository only
+  (does not cover the HTTP mapping; kept as an additional test).

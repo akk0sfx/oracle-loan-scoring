@@ -1,0 +1,534 @@
+[
+  {
+    "name": "purpose CONSUMER, score 800 (discount 2.00)",
+    "input": {
+      "amount": 500000.00,
+      "termMonths": 24,
+      "monthlyIncome": 120000.00,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 800,
+      "decision": "APPROVE",
+      "rate": 19.90,
+      "monthlyPayment": 25423.48,
+      "maxApprovedAmount": 944000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "purpose CAR, score 830",
+    "input": {
+      "amount": 800000.00,
+      "termMonths": 36,
+      "monthlyIncome": 150000.00,
+      "purposeCode": "CAR"
+    },
+    "expected": {
+      "score": 830,
+      "decision": "APPROVE",
+      "rate": 15.90,
+      "monthlyPayment": 28086.15,
+      "maxApprovedAmount": 1709000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_CAR"
+      ]
+    }
+  },
+  {
+    "name": "purpose MORTGAGE, term 60 and amount 3 000 000 not penalized, score 850",
+    "input": {
+      "amount": 3000000.00,
+      "termMonths": 60,
+      "monthlyIncome": 300000.00,
+      "purposeCode": "MORTGAGE"
+    },
+    "expected": {
+      "score": 850,
+      "decision": "APPROVE",
+      "rate": 12.50,
+      "monthlyPayment": 67493.81,
+      "maxApprovedAmount": 5000000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_MORTGAGE"
+      ]
+    }
+  },
+  {
+    "name": "purpose REFINANCE, score 810",
+    "input": {
+      "amount": 1200000.00,
+      "termMonths": 48,
+      "monthlyIncome": 200000.00,
+      "purposeCode": "REFINANCE"
+    },
+    "expected": {
+      "score": 810,
+      "decision": "APPROVE",
+      "rate": 17.50,
+      "monthlyPayment": 34937.25,
+      "maxApprovedAmount": 2747000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_REFINANCE"
+      ]
+    }
+  },
+  {
+    "name": "purpose OTHER, score 770 (just below 800, discount 1.00)",
+    "input": {
+      "amount": 300000.00,
+      "termMonths": 12,
+      "monthlyIncome": 100000.00,
+      "purposeCode": "OTHER"
+    },
+    "expected": {
+      "score": 770,
+      "decision": "APPROVE",
+      "rate": 23.90,
+      "monthlyPayment": 28353.36,
+      "maxApprovedAmount": 423000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_OTHER"
+      ]
+    }
+  },
+  {
+    "name": "DTI just below 0.30 -\u003E DTI_LOW",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 123878.62,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 800,
+      "decision": "APPROVE",
+      "rate": 19.90,
+      "monthlyPayment": 37112.65,
+      "maxApprovedAmount": 1335000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "DTI just above 0.30 -\u003E DTI_MEDIUM",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 123878.61,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 650,
+      "decision": "REVIEW",
+      "rate": 21.90,
+      "monthlyPayment": 38138.74,
+      "maxApprovedAmount": 1299000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "DTI just below 0.50 -\u003E DTI_MEDIUM",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 74327.17,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 650,
+      "decision": "REVIEW",
+      "rate": 21.90,
+      "monthlyPayment": 38138.74,
+      "maxApprovedAmount": 779000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "DTI just above 0.50 -\u003E DTI_HIGH",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 74327.16,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 350,
+      "decision": "REJECT",
+      "rate": null,
+      "monthlyPayment": null,
+      "maxApprovedAmount": 0.00,
+      "reasons": [
+        "DTI_HIGH",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "term 6 and amount 50 000 (minimums)",
+    "input": {
+      "amount": 50000.00,
+      "termMonths": 6,
+      "monthlyIncome": 50000.00,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 800,
+      "decision": "APPROVE",
+      "rate": 19.90,
+      "monthlyPayment": 8823.64,
+      "maxApprovedAmount": 113000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "term 61 -\u003E LONG_TERM",
+    "input": {
+      "amount": 2000000.00,
+      "termMonths": 61,
+      "monthlyIncome": 300000.00,
+      "purposeCode": "CAR"
+    },
+    "expected": {
+      "score": 780,
+      "decision": "APPROVE",
+      "rate": 16.90,
+      "monthlyPayment": 49079.07,
+      "maxApprovedAmount": 4890000.00,
+      "reasons": [
+        "DTI_LOW",
+        "LONG_TERM",
+        "PURPOSE_CAR"
+      ]
+    }
+  },
+  {
+    "name": "term 84 and amount 5 000 000 (maximums), max amount capped",
+    "input": {
+      "amount": 5000000.00,
+      "termMonths": 84,
+      "monthlyIncome": 1000000.00,
+      "purposeCode": "MORTGAGE"
+    },
+    "expected": {
+      "score": 750,
+      "decision": "APPROVE",
+      "rate": 13.50,
+      "monthlyPayment": 92324.46,
+      "maxApprovedAmount": 5000000.00,
+      "reasons": [
+        "DTI_LOW",
+        "LONG_TERM",
+        "LARGE_AMOUNT",
+        "PURPOSE_MORTGAGE"
+      ]
+    }
+  },
+  {
+    "name": "amount 3 000 001 -\u003E LARGE_AMOUNT",
+    "input": {
+      "amount": 3000001.00,
+      "termMonths": 60,
+      "monthlyIncome": 400000.00,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 750,
+      "decision": "APPROVE",
+      "rate": 20.90,
+      "monthlyPayment": 80991.44,
+      "maxApprovedAmount": 5000000.00,
+      "reasons": [
+        "DTI_LOW",
+        "LARGE_AMOUNT",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "score exactly 700 via DTI_LOW \u002B LONG_TERM \u002B LARGE_AMOUNT",
+    "input": {
+      "amount": 4000000.00,
+      "termMonths": 72,
+      "monthlyIncome": 500000.00,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 700,
+      "decision": "APPROVE",
+      "rate": 20.90,
+      "monthlyPayment": 97909.46,
+      "maxApprovedAmount": 5000000.00,
+      "reasons": [
+        "DTI_LOW",
+        "LONG_TERM",
+        "LARGE_AMOUNT",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "score exactly 700 via DTI_MEDIUM \u002B MORTGAGE",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 90000.00,
+      "purposeCode": "MORTGAGE"
+    },
+    "expected": {
+      "score": 700,
+      "decision": "APPROVE",
+      "rate": 13.50,
+      "monthlyPayment": 33935.29,
+      "maxApprovedAmount": 1060000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "PURPOSE_MORTGAGE"
+      ]
+    }
+  },
+  {
+    "name": "score 680 (highest below 700) -\u003E REVIEW",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 100000.00,
+      "purposeCode": "CAR"
+    },
+    "expected": {
+      "score": 680,
+      "decision": "REVIEW",
+      "rate": 17.90,
+      "monthlyPayment": 36102.25,
+      "maxApprovedAmount": 1107000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "PURPOSE_CAR"
+      ]
+    }
+  },
+  {
+    "name": "score 650 REVIEW, no discount",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 100000.00,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 650,
+      "decision": "REVIEW",
+      "rate": 21.90,
+      "monthlyPayment": 38138.74,
+      "maxApprovedAmount": 1048000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "score 520 (lowest REVIEW)",
+    "input": {
+      "amount": 4000000.00,
+      "termMonths": 72,
+      "monthlyIncome": 240000.00,
+      "purposeCode": "OTHER"
+    },
+    "expected": {
+      "score": 520,
+      "decision": "REVIEW",
+      "rate": 24.90,
+      "monthlyPayment": 107503.39,
+      "maxApprovedAmount": 3571000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "LONG_TERM",
+        "LARGE_AMOUNT",
+        "PURPOSE_OTHER"
+      ]
+    }
+  },
+  {
+    "name": "score 400 (highest REJECT)",
+    "input": {
+      "amount": 2000000.00,
+      "termMonths": 24,
+      "monthlyIncome": 100000.00,
+      "purposeCode": "MORTGAGE"
+    },
+    "expected": {
+      "score": 400,
+      "decision": "REJECT",
+      "rate": null,
+      "monthlyPayment": null,
+      "maxApprovedAmount": 0.00,
+      "reasons": [
+        "DTI_HIGH",
+        "PURPOSE_MORTGAGE"
+      ]
+    }
+  },
+  {
+    "name": "score 320 REJECT",
+    "input": {
+      "amount": 2000000.00,
+      "termMonths": 24,
+      "monthlyIncome": 100000.00,
+      "purposeCode": "OTHER"
+    },
+    "expected": {
+      "score": 320,
+      "decision": "REJECT",
+      "rate": null,
+      "monthlyPayment": null,
+      "maxApprovedAmount": 0.00,
+      "reasons": [
+        "DTI_HIGH",
+        "PURPOSE_OTHER"
+      ]
+    }
+  },
+  {
+    "name": "score 330 REJECT with LONG_TERM",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 84,
+      "monthlyIncome": 20000.00,
+      "purposeCode": "CAR"
+    },
+    "expected": {
+      "score": 330,
+      "decision": "REJECT",
+      "rate": null,
+      "monthlyPayment": null,
+      "maxApprovedAmount": 0.00,
+      "reasons": [
+        "DTI_HIGH",
+        "LONG_TERM",
+        "PURPOSE_CAR"
+      ]
+    }
+  },
+  {
+    "name": "lowest possible score 220",
+    "input": {
+      "amount": 5000000.00,
+      "termMonths": 84,
+      "monthlyIncome": 1000.00,
+      "purposeCode": "OTHER"
+    },
+    "expected": {
+      "score": 220,
+      "decision": "REJECT",
+      "rate": null,
+      "monthlyPayment": null,
+      "maxApprovedAmount": 0.00,
+      "reasons": [
+        "DTI_HIGH",
+        "LONG_TERM",
+        "LARGE_AMOUNT",
+        "PURPOSE_OTHER"
+      ]
+    }
+  },
+  {
+    "name": "highest possible score 850",
+    "input": {
+      "amount": 100000.00,
+      "termMonths": 12,
+      "monthlyIncome": 1000000.00,
+      "purposeCode": "MORTGAGE"
+    },
+    "expected": {
+      "score": 850,
+      "decision": "APPROVE",
+      "rate": 12.50,
+      "monthlyPayment": 8908.29,
+      "maxApprovedAmount": 4490000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_MORTGAGE"
+      ]
+    }
+  },
+  {
+    "name": "fractional amount and income",
+    "input": {
+      "amount": 123456.78,
+      "termMonths": 18,
+      "monthlyIncome": 54321.09,
+      "purposeCode": "REFINANCE"
+    },
+    "expected": {
+      "score": 810,
+      "decision": "APPROVE",
+      "rate": 17.50,
+      "monthlyPayment": 7847.86,
+      "maxApprovedAmount": 341000.00,
+      "reasons": [
+        "DTI_LOW",
+        "PURPOSE_REFINANCE"
+      ]
+    }
+  },
+  {
+    "name": "maximum income, max amount capped",
+    "input": {
+      "amount": 5000000.00,
+      "termMonths": 12,
+      "monthlyIncome": 10000000.00,
+      "purposeCode": "CONSUMER"
+    },
+    "expected": {
+      "score": 750,
+      "decision": "APPROVE",
+      "rate": 20.90,
+      "monthlyPayment": 465328.93,
+      "maxApprovedAmount": 5000000.00,
+      "reasons": [
+        "DTI_LOW",
+        "LARGE_AMOUNT",
+        "PURPOSE_CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "REVIEW: max approved amount below requested (rate above 20%)",
+    "input": {
+      "amount": 1000000.00,
+      "termMonths": 36,
+      "monthlyIncome": 80000.00,
+      "purposeCode": "OTHER"
+    },
+    "expected": {
+      "score": 620,
+      "decision": "REVIEW",
+      "rate": 24.90,
+      "monthlyPayment": 39706.96,
+      "maxApprovedAmount": 805000.00,
+      "reasons": [
+        "DTI_MEDIUM",
+        "PURPOSE_OTHER"
+      ]
+    }
+  }
+]

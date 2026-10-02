@@ -16,7 +16,37 @@ public sealed class OracleScoringRepository(IOptions<OracleOptions> options) : I
 {
     private readonly string _connectionString = options.Value.ConnectionString;
 
-    public async Task<StoredEvaluation> EvaluateAsync(string applicationId, ScoringInput input, CancellationToken cancellationToken)
+    public Task<StoredEvaluation> EvaluateAsync(string applicationId, ScoringInput input, CancellationToken cancellationToken) =>
+        TranslateErrorsAsync(() => EvaluateCoreAsync(applicationId, input, cancellationToken));
+
+    public Task<IReadOnlyList<ScoringHistoryEntry>> GetHistoryAsync(string applicationId, CancellationToken cancellationToken) =>
+        TranslateErrorsAsync(() => GetHistoryCoreAsync(applicationId, cancellationToken));
+
+    /// <summary>
+    /// Converts Oracle-specific failures into data-layer exceptions, so the HTTP layer
+    /// (and its tests) does not depend on ODP.NET types (ADR-012).
+    /// </summary>
+    private static async Task<T> TranslateErrorsAsync<T>(Func<Task<T>> action)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (OracleException ex)
+        {
+            switch (OracleErrorClassifier.Classify(ex.Number))
+            {
+                case OracleErrorKind.PackageValidation:
+                    throw new ScoringInputRejectedException(ex.Number, OracleErrorClassifier.FirstMessageLine(ex.Message), ex);
+                case OracleErrorKind.Connectivity:
+                    throw new ScoringDatabaseUnavailableException(ex.Number, ex);
+                default:
+                    throw;
+            }
+        }
+    }
+
+    private async Task<StoredEvaluation> EvaluateCoreAsync(string applicationId, ScoringInput input, CancellationToken cancellationToken)
     {
         await using var connection = new OracleConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -62,7 +92,7 @@ public sealed class OracleScoringRepository(IOptions<OracleOptions> options) : I
         return new StoredEvaluation(storedLogId, output);
     }
 
-    public async Task<IReadOnlyList<ScoringHistoryEntry>> GetHistoryAsync(string applicationId, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<ScoringHistoryEntry>> GetHistoryCoreAsync(string applicationId, CancellationToken cancellationToken)
     {
         // A plain SELECT instead of PKG_LOAN_SCORING.GET_HISTORY: Dapper has no built-in REF CURSOR
         // support (ADR-007). Columns and ordering mirror GET_HISTORY.
