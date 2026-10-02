@@ -162,3 +162,64 @@ Log of non-obvious decisions (ADR-lite). Newest entries at the bottom.
   unreachable through a plain HTTP request, yet the mapping must be proven end to end.
 - Alternatives: a test-only endpoint (test code in production assembly); testing the repository only
   (does not cover the HTTP mapping; kept as an additional test).
+
+## ADR-016: Conservative C# in the Creatio package
+- Date: 2026-10-02
+- Decision: code under `creatio/` uses C# 7.3-level syntax (block namespaces, classes instead of records,
+  switch statements, `string.Format`), and the `.NET` conventions of `scoring-api/` (Directory.Build.props) do not apply here.
+- Why: Creatio compiles the configuration itself with its own compiler settings; the language version
+  available to configuration code on the stand is not known (Q-008). The sources are checked locally
+  as `netstandard2.0` + `LangVersion 7.3` against signature stubs.
+- Alternatives: modern C# (risk of compile errors on the stand).
+
+## ADR-017: Scoring algorithm duplicated in the Creatio mock
+- Date: 2026-10-02
+- Decision: `UsrScoringCalculatorMock` is a copy of `ScoringApi.Core.ScoringCalculator` (same decimal
+  approach, integer power by squaring, midpoint away from zero).
+- Why: a Creatio package cannot reference an assembly of this repository; shipping an external DLL in the
+  package for ~100 lines adds deployment and versioning work. Parity is checked by running the mock on
+  tests/golden-vectors.json (26/26 locally).
+- Alternatives: external assembly in the package; always calling the API (no offline demo mode).
+
+## ADR-018: Lookup ids resolved by UsrCode with a per-request cache
+- Date: 2026-10-02
+- Decision: `UsrLoanStatusHelper` loads (Id, UsrCode) of a lookup once per instance; an instance lives
+  for one service call or one listener event. No static cache.
+- Why: Ids of lookup records differ between environments, codes are the contract. A static cache would
+  be shared between users and stale after lookup edits.
+- Alternatives: hard-coded Ids (environment-specific); static cache with invalidation (more code).
+
+## ADR-019: Record rights in the scoring service
+- Date: 2026-10-02
+- Decision: the service loads and saves the application with `Entity.UseAdminRights = true` (apply the
+  current user's record permissions); `FetchFromDB` returning false (missing or not visible) is reported
+  as APP_NOT_FOUND. History rows are written by the listener with `UseAdminRights = false`.
+- Why: the service must not let a user score an application they cannot see or edit; authentication
+  itself is enforced by /0/rest/ (session cookie + BPMCSRF). History is system data (contract 2.4).
+- Status: behaviour on the stand to be confirmed with a user without edit rights (Q-010).
+
+## ADR-020: REJECT stores 0 in UsrRate / UsrMonthlyPayment
+- Date: 2026-10-02
+- Decision: for REJECT the service writes 0 to the numeric columns and returns null in ScoreResult.
+- Why: Creatio numeric columns hold a number (default 0), not NULL; the contract response keeps null.
+  UsrDecision = REJECT tells the UI that 0 means "not applicable".
+- Alternatives: leave the old values (misleading after a re-score).
+
+## ADR-021: Listener rules split by event instead of a single OnSaving
+- Date: 2026-10-02
+- Decision: OnSaving — ranges; OnInserting — default status and number; OnUpdating — status
+  transitions, financial lock, number immutability; OnSaved — history.
+- Why: per Creatio docs, insert runs OnSaving -> OnInserting and update runs OnSaving -> OnUpdating.
+  Splitting by event answers "insert or update?" without relying on undocumented state, and on insert
+  OnSaving runs before the default status is set.
+- Alternatives: everything in OnSaving with an insert/update check (needs an undocumented property).
+
+## ADR-022: UsrNumber from a system setting counter (known race)
+- Date: 2026-10-02
+- Decision: OnInserting reads UsrLoanApplicationLastNumber, adds 1, stores it with SysSettings.SetDefValue
+  and formats LA-000001.
+- Why: required by the contract (2.5) and simple.
+- Known issue: read-increment-write is not atomic; two parallel inserts can get the same number.
+- Production options: a database sequence (Oracle/PostgreSQL) read via a custom query; a counter row
+  updated with `UPDATE ... SET n = n + 1 RETURNING n` under a row lock; a unique index on UsrNumber plus
+  retry on conflict.

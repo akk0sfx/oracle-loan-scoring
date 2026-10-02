@@ -71,3 +71,48 @@ Such places in code are marked `// TODO(verify): ...` (`-- TODO(verify): ...` in
   (ADR-008). Correct for the container, wrong for a DB host in another zone. Switch the default to
   `SYS_EXTRACT_UTC(SYSTIMESTAMP)`?
 - Status: open
+
+## Q-008: Configuration compiler and logging facade on Creatio .NET 8
+- Date: 2026-10-02
+- Where: creatio/src/*.cs
+- Context: which C# language version Creatio uses to compile configuration on .NET 8, and whether
+  `global::Common.Logging.LogManager.GetLogger(...)` is available there (it is the facade on .NET Framework).
+- Status: open — will be answered by the first compilation on the stand
+
+## Q-009: SysSettings API details
+- Date: 2026-10-02
+- Where: UsrScoringApiClient.cs, UsrLoanApplicationEventListener.cs
+- Context: (a) overload `SysSettings.GetValue<T>(UserConnection, string, T)`; (b) GetValue of an
+  encrypted (SecureText) setting returns the decrypted value in server code; (c) `SysSettings.SetDefValue`
+  stores the value for all users.
+- Status: open
+
+## Q-010: Does Entity.Save enforce record rights with UseAdminRights = true?
+- Date: 2026-10-02
+- Where: UsrLoanScoringService.cs (ADR-019)
+- Context: expected: a user without edit rights on the application gets an error on Save and without read
+  rights gets APP_NOT_FOUND. Needs a test with a restricted user on the stand.
+- Status: open
+
+## Q-011: DateTime from server code for a Date/time column
+- Date: 2026-10-02
+- Where: UsrLoanScoringService.cs (UsrScoredOn)
+- Context: the service writes `DateTime.UtcNow`. Confirm Creatio treats the value as UTC and shows the
+  user's local time (otherwise use the user's time zone conversion).
+- Status: open
+
+## Q-012: Old column values in OnSaved
+- Date: 2026-10-02
+- Where: UsrLoanApplicationEventListener.OnSaved
+- Context: history detection compares `GetTypedOldColumnValue` with the current value in OnSaved. If old
+  values are already reset at that point, no history is written; then the status change has to be
+  detected in OnSaving/OnUpdating and passed on (e.g. via a transaction-scoped marker).
+- Status: open — check: change a status, look at the UsrLoanDecisionHistory detail
+
+## Q-013: Concurrent Score calls for the same application
+- Date: 2026-10-02
+- Where: UsrLoanScoringService.cs, step 2–4
+- Context: two calls can both read NEW and both move to SCORING (the second save sees NEW -> SCORING
+  as allowed). The API is then called twice. Fix: conditional update `SET status = SCORING WHERE
+  status = NEW` (Update query) and treat 0 affected rows as INVALID_STATUS. Contract change? (behaviour only)
+- Status: open

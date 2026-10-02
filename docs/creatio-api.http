@@ -1,0 +1,81 @@
+# Creatio requests for the REST Client extension (VS Code) or the Rider / Visual Studio HTTP client.
+#
+# 1. Fill in @baseUrl, @login, @password (never commit real credentials).
+# 2. Run "Login". The response sets cookies (.ASPXAUTH, BPMCSRF, ...); both clients keep them
+#    for the following requests automatically.
+# 3. Copy the value of the BPMCSRF cookie from the Login response (Set-Cookie header) into @csrf.
+#    Creatio rejects state-changing calls without a BPMCSRF header equal to that cookie.
+# 4. Put ids of test applications into the @app* variables (open the record, copy the id from the URL).
+@baseUrl = https://your-instance.creatio.com
+@login = Supervisor
+@password = change-me
+@csrf = paste-BPMCSRF-cookie-value-here
+
+# Applications prepared for each case (see README, section Creatio):
+@appNew = 00000000-0000-0000-0000-000000000000
+@appApproved = 00000000-0000-0000-0000-000000000000
+
+### Login (cookie-based authentication)
+POST {{baseUrl}}/ServiceModel/AuthService.svc/Login
+Content-Type: application/json
+
+{
+  "UserName": "{{login}}",
+  "UserPassword": "{{password}}"
+}
+
+### Score — success (application in status NEW with valid fields)
+# Expected: {"ScoreResult":{"success":true,"errorCode":null,"statusCode":"APPROVED"|"REVIEW"|"REJECTED",...}}
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+BPMCSRF: {{csrf}}
+
+{ "applicationId": "{{appNew}}" }
+
+### Score — APP_NOT_FOUND (random id)
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+BPMCSRF: {{csrf}}
+
+{ "applicationId": "6f1c2b9e-dead-beef-0000-000000000000" }
+
+### Score — INVALID_STATUS (an application already scored, e.g. APPROVED)
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+BPMCSRF: {{csrf}}
+
+{ "applicationId": "{{appApproved}}" }
+
+### Score — VALIDATION_ERROR
+# The listener rejects out-of-range values on every ORM save, so such an application can only
+# exist if it was written around the ORM (direct SQL) or before the package was installed.
+# With no such record this request returns another code; see README, section Creatio.
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+BPMCSRF: {{csrf}}
+
+{ "applicationId": "{{appNew}}" }
+
+### Score — SCORING_UNAVAILABLE
+# Preparation: UsrScoringUseMock = false, UsrScoringApiUrl = http://127.0.0.1:9 (nothing listens).
+# Expected: errorCode SCORING_UNAVAILABLE, statusCode NEW (rolled back).
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+BPMCSRF: {{csrf}}
+
+{ "applicationId": "{{appNew}}" }
+
+### Score — SCORING_ERROR
+# Preparation: UsrScoringUseMock = false, UsrScoringApiUrl = the tunnel URL of the Scoring API,
+# UsrScoringApiKey = wrong-key. The API answers 401 -> errorCode SCORING_ERROR, statusCode NEW.
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+BPMCSRF: {{csrf}}
+
+{ "applicationId": "{{appNew}}" }
+
+### Score without BPMCSRF header — rejected by Creatio before reaching the service
+POST {{baseUrl}}/0/rest/UsrLoanScoringService/Score
+Content-Type: application/json
+
+{ "applicationId": "{{appNew}}" }

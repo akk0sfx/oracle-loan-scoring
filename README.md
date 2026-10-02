@@ -20,7 +20,48 @@ For `dotnet run` the API needs Oracle and two environment variables — see [Sco
 
 ## Creatio
 
-_TODO._
+Package `UsrLoanScoring` (Creatio 8.x on .NET 8, Classic UI). Contract — [CONTRACTS.md](docs/CONTRACTS.md)
+sections 2–3.
+
+| Source code schema | What it does |
+|--------------------|--------------|
+| `UsrLoanScoringConstants` | all codes, column and setting names; status transition table; range rules |
+| `UsrLoanStatusHelper` | status / purpose Id <-> UsrCode via EntitySchemaQuery, per-request cache |
+| `UsrScoringCalculatorMock` | in-Creatio copy of the scoring algorithm (used when `UsrScoringUseMock = true`) |
+| `UsrScoringApiClient` | HTTP call to the Scoring API with `X-Api-Key` and `X-Correlation-Id` |
+| `UsrLoanScoringService` | `POST /0/rest/UsrLoanScoringService/Score` |
+| `UsrLoanApplicationEventListener` | default status, `LA-000001` numbers, transitions, financial lock, history |
+
+The C# sources live in `creatio/src/` until the package export is available; then each file goes into
+`creatio/packages/UsrLoanScoring/Schemas/<SchemaName>/<SchemaName>.cs` (schema UIds and metadata stay as
+exported).
+
+### Load and compile with clio
+
+```bash
+dotnet tool install clio -g
+clio reg-web-app dev -u https://your-instance.creatio.com -l Supervisor -p "<password>"
+clio ping -e dev
+clio push-pkg creatio/packages/UsrLoanScoring -e dev
+```
+
+Then compile the configuration (Configuration section → Actions → Compile, or clio — see the
+command list in `clio --help` for the compile command of your clio version).
+
+### Mock or real API
+
+- **Mock (default):** system setting `UsrScoringUseMock = true` — scoring runs inside Creatio, no network.
+- **Real API:** start the stack (`docker compose up -d`), expose it with a tunnel
+  (`cloudflared tunnel --url http://localhost:8080`), then set `UsrScoringApiUrl` to the tunnel URL,
+  `UsrScoringApiKey` to `SCORING_API_KEY` from `.env`, and `UsrScoringUseMock = false`.
+
+### Try the service
+
+[docs/creatio-api.http](docs/creatio-api.http): log in, copy the `BPMCSRF` cookie into `@csrf`, put
+application ids into the variables and run the Score requests (success and every `errorCode`).
+For SCORING_UNAVAILABLE point `UsrScoringApiUrl` to `http://127.0.0.1:9`; for SCORING_ERROR use a wrong
+`UsrScoringApiKey`. VALIDATION_ERROR needs a record written around the ORM (the listener blocks invalid
+values on every save).
 
 ## Oracle
 
