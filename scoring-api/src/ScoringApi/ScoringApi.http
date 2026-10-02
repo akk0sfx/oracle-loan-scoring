@@ -1,0 +1,6 @@
+@ScoringApi_HostAddress = http://localhost:5077
+
+GET {{ScoringApi_HostAddress}}/health
+Accept: application/json
+
+###

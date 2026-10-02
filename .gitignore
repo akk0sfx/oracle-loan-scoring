@@ -1,0 +1,59 @@
+# --- .NET build output ---
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+*.user
+*.suo
+*.userprefs
+*.nupkg
+*.snupkg
+TestResults/
+*.trx
+coverage*.json
+coverage*.xml
+*.coverage
+*.coveragexml
+
+# --- Visual Studio ---
+.vs/
+*.rsuser
+*.sln.docstates
+ipch/
+*.VC.db
+
+# --- JetBrains Rider ---
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+# --- VS Code (shared settings may be committed) ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Windows ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Secrets / local config ---
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
