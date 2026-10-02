@@ -1,0 +1,17 @@
+# gitleaks configuration: default rules plus an allowlist of KNOWN, PUBLIC development values.
+# Only exact dev/test literals are allowed here — never add paths or broad patterns.
+title = "creatio-loan-scoring"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented local-development values and passwords of throwaway test containers"
+regexTarget = "secret"
+regexes = [
+  '''^dev-key-change-me$''',      # default UsrScoringApiKey / SCORING_API_KEY from CONTRACTS.md 2.5
+  '''^IntegrationTests123$''',    # SCORING password of the Testcontainers Oracle (destroyed after tests)
+  '''^IntegrationSys123$''',      # SYS password of the same throwaway container
+  '''^OracleDev123$''',           # .env.example defaults for local docker compose
+  '''^ScoringDev123$''',
+]

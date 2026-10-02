@@ -57,3 +57,6 @@ $RECYCLE.BIN/
 .env.*
 !.env.example
 appsettings.*.local.json
+
+# --- Node tooling ---
+node_modules/

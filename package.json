@@ -1,0 +1,12 @@
+{
+  "name": "creatio-loan-scoring-tooling",
+  "private": true,
+  "description": "Dev tooling only: ESLint for Creatio Classic UI client schemas.",
+  "scripts": {
+    "lint:js": "eslint \"creatio/**/*.js\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0"
+  }
+}

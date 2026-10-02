@@ -79,7 +79,7 @@ define("UsrLoanScoringClientUtils", ["UsrLoanScoringClientUtilsResources"], func
 
 	/** Base rate of a purpose code, or null for an unknown/empty code. */
 	function getBaseRate(purposeCode) {
-		return BaseRates.hasOwnProperty(purposeCode) ? BaseRates[purposeCode] : null;
+		return Object.prototype.hasOwnProperty.call(BaseRates, purposeCode) ? BaseRates[purposeCode] : null;
 	}
 
 	/** Localized text for a ScoreResult.errorCode; unknown codes get a generic message. */

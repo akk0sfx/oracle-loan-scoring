@@ -13,6 +13,22 @@ Such places in code are marked `// TODO(verify): ...` (`-- TODO(verify): ...` in
 - Status: open | closed (answer, source)
 ```
 
+## Status summary (review 2026-10-02, before publication)
+
+No question is fully closed yet. Open items are listed in README, section
+"Limitations and what I would do in production".
+
+| Id | Topic | Status | Blocked by |
+|----|-------|--------|------------|
+| Q-001 | error code for an invalid rate in CALC_ANNUITY | open | author's decision on the contract |
+| Q-002 | rounding of basePayment before DTI | open | author's decision on the contract |
+| Q-003 | lower bound of maxApprovedAmount | open | author's decision on the contract |
+| Q-004 | example numbers in CONTRACTS.md | open | author's decision on the contract |
+| Q-005 | ODP.NET "database unavailable" codes | partly verified (50201 observed and covered by an integration test) | DNS failure, wrong password, pool timeout not reproduced |
+| Q-006 | `code` for 404 / 405 | open | author's decision on the contract |
+| Q-007 | time zone of CREATED_AT | open | author's decision on the contract |
+| Q-008..Q-018 | Creatio platform details | open | first compilation and run on a Creatio stand |
+
 ---
 
 ## Q-001: Error code for invalid rate in CALC_ANNUITY
